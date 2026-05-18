@@ -10,6 +10,28 @@ Before running the game, make sure you have the Java Development Kit (JDK) insta
 ```bash
 java -version
 
+## 🛠️ Prerequisites
+
+Before running the game, you need to install **Java (JDK 17+)** and **Maven**. Follow the commands for your Operating System below:
+
+### 🪟 Windows
+1. **Install Java & Maven** (Using Winget in PowerShell):
+   ```powershell
+   winget install Eclipse.Temurin.17.JDK
+   winget install Apache.Maven
+
+MACOS
+/bin/bash -c "$(curl -fsSL [https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh](https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh))"
+brew install openjdk@17
+brew install maven
+
+
+DEBIAN BASED DISTROS EG, UBUNTU,MINT AND KALI.
+sudo apt update
+sudo apt install openjdk-17-jdk maven -y
+
+java -version
+mvn -version
 
 HOW TO RUN
 # 1. Clone the repository
