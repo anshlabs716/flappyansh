@@ -30,3 +30,5 @@ flappy-ansh/
     └── main/
         └── java/
             └── Main.java   # Your game's main entry point
+
+OR U CAN DOWNLOAD A JAVA IDE EG VS CODE, INTELLIJ IDEA AND COPY PASTE THE CODE AND ENJOY.
