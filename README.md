@@ -20,3 +20,13 @@ cd flappy-ansh
 
 # 3. Build and run the game using Maven
 mvn clean compile exec:java
+
+HOW THE FILE LAYOUT SHOULD BE
+flappy-ansh/
+├── .gitignore          # Keeps the repo clean
+├── pom.xml             # Maven configuration file
+├── README.md           # This file!
+└── src/
+    └── main/
+        └── java/
+            └── Main.java   # Your game's main entry point
