@@ -1,4 +1,4 @@
-# 🐦 Flappy Ansh
+# 🐦 Flappy Ansh now with chrome os mac windows and linux support. (Contact me if there is an issue) 
 
 Welcome to **Flappy Ansh**! A Java-based game with custom difficulty levels, secret skins, and atmospheric weather effects.
 
