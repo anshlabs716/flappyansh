@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Random;
 
 class FlappyAnshPro extends JPanel implements Runnable, KeyListener {
@@ -19,6 +20,37 @@ class FlappyAnshPro extends JPanel implements Runnable, KeyListener {
 
     private enum State { MENU, BIRD_SELECT, DIFF_SELECT, PLAYING, GAMEOVER, PREVIEW, CREDITS, EASTER_EGG_UNLOCKED }
     private enum Weather { SUNNY, RAINY, WINDY, CLOUDY, STORMY }
+    private enum Platform {
+        WINDOWS("Windows", "WIN"),
+        MAC("macOS", "MAC"),
+        LINUX("Linux", "LINUX"),
+        CHROMEOS("ChromeOS", "CHROME"),
+        OTHER("Unknown OS", "OS");
+
+        private final String label;
+        private final String shortLabel;
+
+        Platform(String label, String shortLabel) {
+            this.label = label;
+            this.shortLabel = shortLabel;
+        }
+
+        static Platform detect() {
+            String systemText = (System.getProperty("os.name", "") + " " +
+                    System.getProperty("os.version", "") + " " +
+                    System.getenv().getOrDefault("XDG_CURRENT_DESKTOP", "") + " " +
+                    System.getenv().getOrDefault("DESKTOP_SESSION", "") + " " +
+                    System.getenv().getOrDefault("CHROMEOS_RELEASE_NAME", "") + " " +
+                    System.getenv().getOrDefault("CHROMEOS_RELEASE_VERSION", "")).toLowerCase(Locale.ROOT);
+            if (systemText.contains("chrome") || systemText.contains("cros")) return CHROMEOS;
+            if (systemText.contains("win")) return WINDOWS;
+            if (systemText.contains("mac") || systemText.contains("darwin")) return MAC;
+            if (systemText.contains("linux") || systemText.contains("nux") || systemText.contains("nix")) return LINUX;
+            return OTHER;
+        }
+    }
+
+    private final Platform platform = Platform.detect();
     private State currentState = State.MENU;
     private Weather currentWeather = Weather.SUNNY, nextWeather = Weather.SUNNY;
     private int weatherTransition = 0, lastWeatherScore = 0;
@@ -49,7 +81,8 @@ class FlappyAnshPro extends JPanel implements Runnable, KeyListener {
     private Color birdColor = Color.YELLOW;
     private boolean easterEggEnabled = false, isSecretUnlocked = false;
     private int secretCounter = 0;
-    private BufferedImage devImage;
+    private volatile BufferedImage devImage;
+    private boolean devImageLoadStarted = false;
 
     private int shakeTicks = 0, flashTicks = 0;
     private long lastInputTime = System.currentTimeMillis();
@@ -90,7 +123,6 @@ class FlappyAnshPro extends JPanel implements Runnable, KeyListener {
                 handlePointerPress(e.getX(), e.getY());
             }
         });
-        loadEasterEggImage();
     }
 
     private Point toGamePoint(int screenX, int screenY) {
@@ -157,6 +189,7 @@ class FlappyAnshPro extends JPanel implements Runnable, KeyListener {
         secretCounter++;
         if (secretCounter >= 6) {
             isSecretUnlocked = true;
+            loadEasterEggImageAsync();
             currentState = State.EASTER_EGG_UNLOCKED;
             secretCounter = 0;
         }
@@ -182,6 +215,7 @@ class FlappyAnshPro extends JPanel implements Runnable, KeyListener {
 
     private void chooseSecretBird() {
         if (!isSecretUnlocked) return;
+        loadEasterEggImageAsync();
         easterEggEnabled = true;
         resetGame();
     }
@@ -191,6 +225,14 @@ class FlappyAnshPro extends JPanel implements Runnable, KeyListener {
             birdVel = jump;
             playJumpSound();
         }
+    }
+
+    private synchronized void loadEasterEggImageAsync() {
+        if (devImageLoadStarted) return;
+        devImageLoadStarted = true;
+        Thread imageLoader = new Thread(this::loadEasterEggImage, "anshyboii-image-loader");
+        imageLoader.setDaemon(true);
+        imageLoader.start();
     }
 
     private void loadEasterEggImage() {
@@ -299,7 +341,7 @@ class FlappyAnshPro extends JPanel implements Runnable, KeyListener {
         currentState = State.GAMEOVER;
         shakeTicks = 15;
         flashTicks = 5;
-        currentInsult = INSULTS[rand.nextInt(INSULTS.length)];
+        currentInsult = tuneEmojiForPlatform(INSULTS[rand.nextInt(INSULTS.length)]);
         playDeathSound();
     }
 
@@ -383,6 +425,7 @@ class FlappyAnshPro extends JPanel implements Runnable, KeyListener {
         drawPoppingText(g, "HIGH SCORE: " + highScore, new Font("Arial", Font.BOLD, 22), Color.WHITE, 380, 360);
         drawPoppingText(g, "ANSHCOINS: " + anshCoins, new Font("Arial", Font.BOLD, 22), Color.WHITE, 420, 440);
         drawPoppingText(g, "SECRET: TAP 6 TIMES OR PRESS [ 6 ]", new Font("Arial", Font.BOLD, 18), Color.RED, 465, 520);
+        drawPlatformLine(g);
     }
 
     private void drawPoppingText(Graphics2D g, String text, Font font, Color color, int baselineY, long offsetMs) {
@@ -429,8 +472,159 @@ class FlappyAnshPro extends JPanel implements Runnable, KeyListener {
     private void drawGameOver(Graphics2D g) {
         g.setColor(new Color(0, 0, 0, 200)); g.fillRect(0, 0, WIDTH, HEIGHT);
         g.setColor(Color.RED); g.setFont(new Font("Impact", Font.PLAIN, 50)); g.drawString("YOU GOT COOKED", 155, 160);
-        g.setColor(Color.WHITE); g.setFont(new Font("Impact", Font.PLAIN, 28)); g.drawString(currentInsult, (WIDTH - g.getFontMetrics().stringWidth(currentInsult)) / 2, 230);
+        drawGameOverInsult(g);
+        g.setFont(new Font("Impact", Font.PLAIN, 28));
         g.setColor(Color.YELLOW); g.drawString("SCORE: " + score, 255, 300); g.setFont(new Font("Arial", Font.BOLD, 16)); g.drawString("ENTER / TAP FOR MENU", 215, 380);
+    }
+
+    private String tuneEmojiForPlatform(String text) {
+        return text;
+    }
+
+    private void drawPlatformLine(Graphics2D g) {
+        String text = "OS: " + platform.label;
+        Font font = new Font("Arial", Font.BOLD, 15);
+        FontMetrics metrics = g.getFontMetrics(font);
+        int iconSize = 27;
+        int gap = 8;
+        int totalWidth = iconSize + gap + metrics.stringWidth(text);
+        int x = (WIDTH - totalWidth) / 2;
+        int y = 504;
+
+        drawPlatformEmoji(g, x, y - iconSize + 7, iconSize);
+        g.setFont(font);
+        g.setColor(new Color(0, 0, 0, 95));
+        g.drawString(text, x + iconSize + gap + 2, y + 2);
+        g.setColor(Color.WHITE);
+        g.drawString(text, x + iconSize + gap, y);
+    }
+
+    private void drawGameOverInsult(Graphics2D g) {
+        Font font = fitFont(g, currentInsult, new Font(Font.DIALOG, Font.BOLD, 28), 464);
+        FontMetrics metrics = g.getFontMetrics(font);
+        int iconSize = 34;
+        int gap = 10;
+        int textWidth = metrics.stringWidth(currentInsult);
+        int totalWidth = iconSize + gap + textWidth + gap + iconSize;
+        int x = (WIDTH - totalWidth) / 2;
+        int y = 200;
+
+        drawPlatformEmoji(g, x, y, iconSize);
+        g.setFont(font);
+        g.setColor(new Color(0, 0, 0, 100));
+        g.drawString(currentInsult, x + iconSize + gap + 2, 232);
+        g.setColor(Color.WHITE);
+        g.drawString(currentInsult, x + iconSize + gap, 230);
+        drawPlatformEmoji(g, x + iconSize + gap + textWidth + gap, y, iconSize);
+    }
+
+    private void drawPlatformEmoji(Graphics2D g, int x, int y, int size) {
+        Graphics2D icon = (Graphics2D) g.create();
+        icon.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        icon.translate(x, y);
+        icon.setColor(new Color(0, 0, 0, 70));
+        icon.fillRoundRect(1, 2, size, size, size / 3, size / 3);
+        icon.setColor(new Color(255, 255, 255, 242));
+        icon.fillRoundRect(0, 0, size, size, size / 3, size / 3);
+
+        switch (platform) {
+            case WINDOWS -> drawWindowsEmoji(icon, size);
+            case MAC -> drawMacEmoji(icon, size);
+            case LINUX -> drawLinuxEmoji(icon, size);
+            case CHROMEOS -> drawChromeEmoji(icon, size);
+            case OTHER -> drawGamepadEmoji(icon, size);
+        }
+        icon.dispose();
+    }
+
+    private void drawWindowsEmoji(Graphics2D g, int s) {
+        g.setColor(new Color(0, 120, 215));
+        int gap = Math.max(2, s / 12);
+        int pane = (s - 10 - gap) / 2;
+        int x = (s - pane * 2 - gap) / 2;
+        int y = (s - pane * 2 - gap) / 2;
+        g.fillRect(x, y, pane, pane);
+        g.fillRect(x + pane + gap, y, pane, pane);
+        g.fillRect(x, y + pane + gap, pane, pane);
+        g.fillRect(x + pane + gap, y + pane + gap, pane, pane);
+        g.setColor(new Color(255, 255, 255, 90));
+        g.drawLine(x + pane + gap / 2, y, x + pane + gap / 2, y + pane * 2 + gap);
+        g.drawLine(x, y + pane + gap / 2, x + pane * 2 + gap, y + pane + gap / 2);
+    }
+
+    private void drawMacEmoji(Graphics2D g, int s) {
+        g.setColor(new Color(35, 35, 40));
+        g.fillOval((int)(s * 0.25), (int)(s * 0.32), (int)(s * 0.36), (int)(s * 0.46));
+        g.fillOval((int)(s * 0.43), (int)(s * 0.29), (int)(s * 0.38), (int)(s * 0.49));
+        g.fillOval((int)(s * 0.32), (int)(s * 0.48), (int)(s * 0.39), (int)(s * 0.34));
+        g.setColor(new Color(64, 150, 72));
+        g.fillOval((int)(s * 0.50), (int)(s * 0.13), (int)(s * 0.24), (int)(s * 0.13));
+        g.setColor(new Color(255, 255, 255, 242));
+        g.fillOval((int)(s * 0.68), (int)(s * 0.38), (int)(s * 0.22), (int)(s * 0.22));
+    }
+
+    private void drawLinuxEmoji(Graphics2D g, int s) {
+        g.setColor(new Color(245, 155, 30));
+        g.fillOval((int)(s * 0.22), (int)(s * 0.76), (int)(s * 0.26), (int)(s * 0.12));
+        g.fillOval((int)(s * 0.52), (int)(s * 0.76), (int)(s * 0.26), (int)(s * 0.12));
+        g.setColor(Color.BLACK);
+        g.fillOval((int)(s * 0.28), (int)(s * 0.12), (int)(s * 0.44), (int)(s * 0.70));
+        g.setColor(Color.WHITE);
+        g.fillOval((int)(s * 0.36), (int)(s * 0.36), (int)(s * 0.28), (int)(s * 0.38));
+        g.fillOval((int)(s * 0.34), (int)(s * 0.24), (int)(s * 0.14), (int)(s * 0.15));
+        g.fillOval((int)(s * 0.52), (int)(s * 0.24), (int)(s * 0.14), (int)(s * 0.15));
+        g.setColor(Color.BLACK);
+        g.fillOval((int)(s * 0.39), (int)(s * 0.29), Math.max(2, s / 11), Math.max(2, s / 11));
+        g.fillOval((int)(s * 0.55), (int)(s * 0.29), Math.max(2, s / 11), Math.max(2, s / 11));
+        g.setColor(new Color(245, 155, 30));
+        g.fillPolygon(new int[]{s / 2 - s / 9, s / 2 + s / 9, s / 2},
+                new int[]{(int)(s * 0.45), (int)(s * 0.45), (int)(s * 0.56)}, 3);
+    }
+
+    private void drawChromeEmoji(Graphics2D g, int s) {
+        int pad = Math.max(3, s / 7);
+        int d = s - pad * 2;
+        g.setColor(new Color(231, 59, 45));
+        g.fillArc(pad, pad, d, d, 20, 120);
+        g.setColor(new Color(252, 197, 54));
+        g.fillArc(pad, pad, d, d, 140, 120);
+        g.setColor(new Color(43, 150, 80));
+        g.fillArc(pad, pad, d, d, 260, 120);
+        g.setColor(Color.WHITE);
+        g.fillOval(s / 2 - s / 5, s / 2 - s / 5, (s * 2) / 5, (s * 2) / 5);
+        g.setColor(new Color(54, 126, 238));
+        g.fillOval(s / 2 - s / 7, s / 2 - s / 7, (s * 2) / 7, (s * 2) / 7);
+    }
+
+    private void drawGamepadEmoji(Graphics2D g, int s) {
+        g.setColor(new Color(95, 77, 150));
+        g.fillRoundRect(s / 4, s / 3, s / 2, s / 3, s / 7, s / 7);
+        g.setColor(Color.WHITE);
+        g.fillRect((int)(s * 0.35), (int)(s * 0.46), s / 5, Math.max(2, s / 12));
+        g.fillRect((int)(s * 0.42), (int)(s * 0.39), Math.max(2, s / 12), s / 5);
+        g.fillOval((int)(s * 0.62), (int)(s * 0.43), Math.max(3, s / 9), Math.max(3, s / 9));
+    }
+
+    private void drawCenteredFittedText(Graphics2D g, String text, Font baseFont, Color color, int baselineY, int maxWidth) {
+        Font font = fitFont(g, text, baseFont, maxWidth);
+        FontMetrics metrics = g.getFontMetrics(font);
+
+        g.setColor(new Color(0, 0, 0, 100));
+        g.setFont(font);
+        int x = (WIDTH - metrics.stringWidth(text)) / 2;
+        g.drawString(text, x + 2, baselineY + 2);
+        g.setColor(color);
+        g.drawString(text, x, baselineY);
+    }
+
+    private Font fitFont(Graphics2D g, String text, Font baseFont, int maxWidth) {
+        Font font = baseFont;
+        FontMetrics metrics = g.getFontMetrics(font);
+        while (font.getSize() > 14 && metrics.stringWidth(text) > maxWidth) {
+            font = font.deriveFont((float) font.getSize() - 1);
+            metrics = g.getFontMetrics(font);
+        }
+        return font;
     }
 
     private void drawDiffMenu(Graphics2D g) {
