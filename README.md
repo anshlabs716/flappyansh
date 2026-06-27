@@ -8,7 +8,7 @@ Welcome to **Flappy Ansh**! A Java-based game with custom difficulty levels, sec
 
 **You need JDK 21+ to play from the raw .java file, and JRE 21+ to play the .exe file.**
 
-Before running the game, make sure you have the Java Development Kit (JDK) installed. You can check your version by running this in your terminal:
+Before running the .java file, make sure you have the Java Development Kit (JDK) installed. You can check your version by running this in your terminal:
 ```bash
 java -version
 
@@ -19,24 +19,24 @@ Before running the game, you need to install **Java (JDK 21+)** and **Maven**. F
 ### 🪟 Windows
 1. **Install Java & Maven** (Using Winget in PowerShell):
    ```powershell
-   winget install Eclipse.Temurin.17.JDK
+   winget install Eclipse.Temurin.21.JDK
    winget install Apache.Maven
 
 MACOS
 /bin/bash -c "$(curl -fsSL [https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh](https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh))"
-brew install openjdk@17
+brew install openjdk@21
 brew install maven
 
 
 DEBIAN BASED DISTROS EG, UBUNTU,MINT AND KALI.
 sudo apt update
-sudo apt install openjdk-17-jdk maven -y
+sudo apt install openjdk-21-jdk maven -y
 
 java -version
 mvn -version
 
 HOW TO RUN
-# 1. Clone the repository
+# 1. Clone the repository (or just download the .java file)
 git clone [https://github.com/YOUR_GITHUB_USERNAME/flappy-ansh.git](https://github.com/YOUR_GITHUB_USERNAME/flappy-ansh.git)
 
 # 2. Go into the project folder
