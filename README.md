@@ -2,6 +2,8 @@
 
 Welcome to **Flappy Ansh**! A Java-based game with custom difficulty levels, secret skins, and atmospheric weather effects.
 
+**If you are trying to run the .exe file and windows smartscreen blocks it just press more options and press run anyway, that pops up because our .exe isn't signed.**
+
 ---
 
 ## 🛠️ Prerequisites
