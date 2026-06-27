@@ -6,13 +6,15 @@ Welcome to **Flappy Ansh**! A Java-based game with custom difficulty levels, sec
 
 ## 🛠️ Prerequisites
 
+**You need JDK 21+ to play from the raw .java file, and JRE 21+ to play the .exe file.**
+
 Before running the game, make sure you have the Java Development Kit (JDK) installed. You can check your version by running this in your terminal:
 ```bash
 java -version
 
 ## 🛠️ Prerequisites
 
-Before running the game, you need to install **Java (JDK 17+)** and **Maven**. Follow the commands for your Operating System below:
+Before running the game, you need to install **Java (JDK 21+)** and **Maven**. Follow the commands for your Operating System below:
 
 ### 🪟 Windows
 1. **Install Java & Maven** (Using Winget in PowerShell):
@@ -54,3 +56,4 @@ flappy-ansh/
             └── Main.java   # Your game's main entry point
 
 OR U CAN DOWNLOAD A JAVA IDE EG VS CODE, INTELLIJ IDEA AND COPY PASTE THE CODE AND ENJOY.
+
