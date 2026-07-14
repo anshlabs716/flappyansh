@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Random;
 
-class FlappyAnsh extends JPanel implements Runnable, KeyListener {
+class FlappyAnshPro extends JPanel implements Runnable, KeyListener {
     private final int WIDTH = 600, HEIGHT = 550, GROUND_Y = 440;
 
     private enum State { MENU, BIRD_SELECT, DIFF_SELECT, PLAYING, GAMEOVER, PREVIEW, CREDITS, EASTER_EGG_UNLOCKED }
@@ -56,7 +56,7 @@ class FlappyAnsh extends JPanel implements Runnable, KeyListener {
     private int weatherTransition = 0, lastWeatherScore = 0;
 
     private final double[] difficultyGravity = {0.0, 0.18, 0.21, 0.24, 0.27, 0.30};
-    private final double[] difficultyJump = {0.0, -4.8, -5.1, -5.4, -5.7, -6.0};
+    private final double[] difficultyJump = {0.0, -5.5, -5.8, -6.1, -6.4, -6.7};
     private final double[] difficultyFallSpeed = {0.0, 4.6, 5.0, 5.4, 5.8, 6.2};
     private final int[] difficultyPipeSpeed = {0, 2, 3, 4, 5, 6};
     private final int[] difficultyPipeGap = {0, 180, 165, 150, 138, 126};
@@ -87,32 +87,80 @@ class FlappyAnsh extends JPanel implements Runnable, KeyListener {
     private int shakeTicks = 0, flashTicks = 0;
     private long lastInputTime = System.currentTimeMillis();
     private final Random rand = new Random();
+    
+    // Particle system
+    private final ArrayList<Particle> particles = new ArrayList<>();
+    
+    // Power-ups
+    private boolean hasShield = false;
+    private boolean hasDoubleScore = false;
+    private int shieldTimer = 0;
+    private int doubleScoreTimer = 0;
+    private final Rectangle powerUp = new Rectangle();
+    private boolean powerUpActive = false;
+    private int powerUpType = 0; // 0: shield, 1: double score, 2: slow motion
+    
+    // Achievements
+    private final boolean[] achievements = new boolean[10];
+    private final String[] achievementNames = {
+        "FIRST FLAP", "SCORE 10", "SCORE 50", "SCORE 100",
+        "UNLOCK SECRET", "WEATHER MASTER", "COIN COLLECTOR",
+        "PERFECT GAME", "SPEED DEMON", "LEGENDARY"
+    };
+    private int achievementDisplayTimer = 0;
+    private String lastAchievement = "";
+    // Particle class for visual effects
+    private static class Particle {
+        double x, y, vx, vy;
+        Color color;
+        int life, maxLife;
+        double size;
+        
+        Particle(double x, double y, double vx, double vy, Color color, int life, double size) {
+            this.x = x; this.y = y; this.vx = vx; this.vy = vy;
+            this.color = color; this.life = life; this.maxLife = life;
+            this.size = size;
+        }
+        
+        void update() {
+            x += vx; y += vy;
+            vy += 0.1; // gravity
+            life--;
+        }
+        
+        void draw(Graphics2D g) {
+            float alpha = (float) life / maxLife;
+            g.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), (int)(alpha * 255)));
+            g.fillOval((int)x, (int)y, (int)size, (int)size);
+        }
+    }
+    
     private final String[] INSULTS = {
-        "💀 L + RATIO + PIPE 💀", "📉 AURA DEBT DETECTED 📉", "🤖 NPC FLIGHT PATH 🤖", "😭 CHAT SAW THAT 😭", "🚫 RIZZ ON AIRPLANE MODE 🚫",
-        "🧢 CAPTAIN CAP JUST CRASHED 🧢", "📱 SCREEN RECORDING THAT L 📱", "🫠 VIBES GOT FOLDED 🫠", "🎯 AIM LEFT THE GROUP CHAT 🎯", "🔥 COOKED IN 4K 🔥",
-        "💅 SLAYED BY GRAVITY 💅", "🧃 NO JUICE LEFT 🧃", "📉 AURA STOCKS CRASHED 📉", "🫡 FLAP CAREER OVER 🫡", "🧠 BRAINROT SPEEDRUN 🧠",
-        "🚧 PIPE SAID NAH 🚧", "💀 BRO GOT CLIPPED 💀", "🛑 SKILL ISSUE LIVE 🛑", "🤡 GOOBER MODE ACTIVATED 🤡", "📦 PACKED UP BY A PIPE 📦",
-        "😬 THAT WAS NOT SIGMA 😬", "🥶 ZERO AURA MOMENT 🥶", "🧍 MAIN CHARACTER ARC DENIED 🧍", "🎮 CONTROLLER COPIUM 🎮", "🚀 TAKEOFF FAILED BADLY 🚀",
-        "🫥 STEALTH SKILL MISSING 🫥", "🧊 ICE COLD SCORE 🧊", "💔 FLAP RIZZ REJECTED 💔", "🕳️ SENT TO THE L DIMENSION 🕳️", "🤨 BRO THOUGHT HE HAD IT 🤨",
-        "📛 CERTIFIED OOF MOMENT 📛", "🔔 SKILL ALARM RINGING 🔔", "🧲 PIPE MAGNET ENERGY 🧲", "🥴 DELULU PILOTING 🥴", "📺 REPLAY THAT L 📺",
-        "💥 GAP SAID ACCESS DENIED 💥", "🫵 YOU JUST GOT PIPE-CHECKED 🫵", "🌪️ MOVEMENT IN SHAMBLES 🌪️", "😭 NOT EVEN CLOSE BESTIE 😭", "🚨 EMERGENCY AURA LOSS 🚨",
-        "🛫 FLIGHT LICENSE REVOKED 🛫", "🧯 THE FLAME GOT PUT OUT 🧯", "🎲 RNG COULD NOT SAVE YOU 🎲", "🧱 FLEW LIKE A BRICK 🧱", "🫡 RESPECTFULLY COOKED 🫡",
-        "📉 SCORE SAID BYE 📉", "💀 BRO GOT SENT 💀", "🎪 ABSOLUTE CIRCUS FLAPS 🎪", "🤳 POV: INSTANT REGRET 🤳", "🥀 DREAM ENDED MID-FLAP 🥀",
-        "🧠 ONE BRAIN CELL BUFFERING 🧠", "💸 AURA BANKRUPTCY 💸", "🍳 FRIED BY THE GAP 🍳", "😵 REACTION TIME LAGGING 😵", "🚪 VICTORY DOOR LOCKED 🚪",
-        "🤌 SKILL LEFT NO NOTES 🤌", "🧢 THAT FLAP WAS CAP 🧢", "👀 EVERYONE SAW THAT 👀", "🫠 MELTED MID-AIR 🫠", "📵 NO SIGNAL TO THE BRAIN 📵",
-        "🏁 LAST PLACE ENERGY 🏁", "🎯 GAP NOT FOUND 🎯", "💅 SERVING ZERO ALTITUDE 💅", "🚧 DIRECT PIPE DELIVERY 🚧", "🥶 COLD GAMEPLAY ALERT 🥶",
-        "🤖 BOT BEHAVIOR CONFIRMED 🤖", "🔻 ALTITUDE GOT DELETED 🔻", "😭 BRO LOST TO A RECTANGLE 😭", "🧃 FLAP JUICE EMPTY 🧃", "💥 PIPE JUMPSCARE WON 💥",
-        "🧊 FROZEN FINGERS MOMENT 🧊", "📉 MOMENTUM LEFT THE CHAT 📉", "😬 THAT WAS WILDLY UNSERIOUS 😬", "🕹️ BUTTONS COULD NOT CARRY 🕹️", "🫥 STEALTH MODE INTO FAILURE 🫥",
-        "🤨 SUS FLAP DETECTED 🤨", "🔥 ROASTED BY THE HITBOX 🔥", "💀 DELETED BY GRAVITY 💀", "🎮 SKILL TREE UNINSTALLED 🎮", "🧱 WALL WITH WINGS ENERGY 🧱",
-        "📦 SAME-DAY L DELIVERY 📦", "🚫 GAP ACCESS REVOKED 🚫", "💸 AURA IN OVERDRAFT 💸", "🧠 PILOT.EXE STOPPED 🧠", "🥴 FLAP TIMING IN SHAMBLES 🥴",
-        "📜 L ADDED TO HISTORY 📜", "⚠️ LOW BATTERY GAMEPLAY ⚠️", "🧨 PERFORMANCE GOT NUKED 🧨", "🥶 ZERO CHILL ZERO SCORE 🥶", "💀 CHAT IS THIS REAL 💀",
-        "🚀 BRO LAUNCHED INTO FAILURE 🚀", "🧲 ATTRACTED TO LOSING 🧲", "📉 CONFIDENCE CRASHED 📉", "🫡 F TO THE FLAPS 🫡", "🤡 GOOFY AHH FLIGHT 🤡",
-        "🍝 SPAGHETTI MOVEMENT 🍝", "🛑 FLAP PRIVILEGES PAUSED 🛑", "😵 DIZZY FROM LOSING 😵", "🎪 CLOWN CAR PILOTING 🎪", "💅 AESTHETICALLY DEFEATED 💅",
-        "🧠 IQ LEFT MID-FLAP 🧠", "🚧 PIPE HAD FINAL SAY 🚧", "📦 BOXED BY THE OBSTACLE 📦", "🥀 MAIN QUEST FAILED 🥀", "🔥 EXTRA CRISPY L 🔥"
+            "💀 L + RATIO + PIPE 💀", "📉 AURA DEBT DETECTED 📉", "🤖 NPC FLIGHT PATH 🤖", "😭 CHAT SAW THAT 😭", "🚫 RIZZ ON AIRPLANE MODE 🚫",
+            "🧢 CAPTAIN CAP JUST CRASHED 🧢", "📱 SCREEN RECORDING THAT L 📱", "🫠 VIBES GOT FOLDED 🫠", "🎯 AIM LEFT THE GROUP CHAT 🎯", "🔥 COOKED IN 4K 🔥",
+            "💅 SLAYED BY GRAVITY 💅", "🧃 NO JUICE LEFT 🧃", "📉 AURA STOCKS CRASHED 📉", "🫡 FLAP CAREER OVER 🫡", "🧠 BRAINROT SPEEDRUN 🧠",
+            "🚧 PIPE SAID NAH 🚧", "💀 BRO GOT CLIPPED 💀", "🛑 SKILL ISSUE LIVE 🛑", "🤡 GOOBER MODE ACTIVATED 🤡", "📦 PACKED UP BY A PIPE 📦",
+            "😬 THAT WAS NOT SIGMA 😬", "🥶 ZERO AURA MOMENT 🥶", "🧍 MAIN CHARACTER ARC DENIED 🧍", "🎮 CONTROLLER COPIUM 🎮", "🚀 TAKEOFF FAILED BADLY 🚀",
+            "🫥 STEALTH SKILL MISSING 🫥", "🧊 ICE COLD SCORE 🧊", "💔 FLAP RIZZ REJECTED 💔", "🕳️ SENT TO THE L DIMENSION 🕳️", "🤨 BRO THOUGHT HE HAD IT 🤨",
+            "📛 CERTIFIED OOF MOMENT 📛", "🔔 SKILL ALARM RINGING 🔔", "🧲 PIPE MAGNET ENERGY 🧲", "🥴 DELULU PILOTING 🥴", "📺 REPLAY THAT L 📺",
+            "💥 GAP SAID ACCESS DENIED 💥", "🫵 YOU JUST GOT PIPE-CHECKED 🫵", "🌪️ MOVEMENT IN SHAMBLES 🌪️", "😭 NOT EVEN CLOSE BESTIE 😭", "🚨 EMERGENCY AURA LOSS 🚨",
+            "🛫 FLIGHT LICENSE REVOKED 🛫", "🧯 THE FLAME GOT PUT OUT 🧯", "🎲 RNG COULD NOT SAVE YOU 🎲", "🧱 FLEW LIKE A BRICK 🧱", "🫡 RESPECTFULLY COOKED 🫡",
+            "📉 SCORE SAID BYE 📉", "💀 BRO GOT SENT 💀", "🎪 ABSOLUTE CIRCUS FLAPS 🎪", "🤳 POV: INSTANT REGRET 🤳", "🥀 DREAM ENDED MID-FLAP 🥀",
+            "🧠 ONE BRAIN CELL BUFFERING 🧠", "💸 AURA BANKRUPTCY 💸", "🍳 FRIED BY THE GAP 🍳", "😵 REACTION TIME LAGGING 😵", "🚪 VICTORY DOOR LOCKED 🚪",
+            "🤌 SKILL LEFT NO NOTES 🤌", "🧢 THAT FLAP WAS CAP 🧢", "👀 EVERYONE SAW THAT 👀", "🫠 MELTED MID-AIR 🫠", "📵 NO SIGNAL TO THE BRAIN 📵",
+            "🏁 LAST PLACE ENERGY 🏁", "🎯 GAP NOT FOUND 🎯", "💅 SERVING ZERO ALTITUDE 💅", "🚧 DIRECT PIPE DELIVERY 🚧", "🥶 COLD GAMEPLAY ALERT 🥶",
+            "🤖 BOT BEHAVIOR CONFIRMED 🤖", "🔻 ALTITUDE GOT DELETED 🔻", "😭 BRO LOST TO A RECTANGLE 😭", "🧃 FLAP JUICE EMPTY 🧃", "💥 PIPE JUMPSCARE WON 💥",
+            "🧊 FROZEN FINGERS MOMENT 🧊", "📉 MOMENTUM LEFT THE CHAT 📉", "😬 THAT WAS WILDLY UNSERIOUS 😬", "🕹️ BUTTONS COULD NOT CARRY 🕹️", "🫥 STEALTH MODE INTO FAILURE 🫥",
+            "🤨 SUS FLAP DETECTED 🤨", "🔥 ROASTED BY THE HITBOX 🔥", "💀 DELETED BY GRAVITY 💀", "🎮 SKILL TREE UNINSTALLED 🎮", "🧱 WALL WITH WINGS ENERGY 🧱",
+            "📦 SAME-DAY L DELIVERY 📦", "🚫 GAP ACCESS REVOKED 🚫", "💸 AURA IN OVERDRAFT 💸", "🧠 PILOT.EXE STOPPED 🧠", "🥴 FLAP TIMING IN SHAMBLES 🥴",
+            "📜 L ADDED TO HISTORY 📜", "⚠️ LOW BATTERY GAMEPLAY ⚠️", "🧨 PERFORMANCE GOT NUKED 🧨", "🥶 ZERO CHILL ZERO SCORE 🥶", "💀 CHAT IS THIS REAL 💀",
+            "🚀 BRO LAUNCHED INTO FAILURE 🚀", "🧲 ATTRACTED TO LOSING 🧲", "📉 CONFIDENCE CRASHED 📉", "🫡 F TO THE FLAPS 🫡", "🤡 GOOFY AHH FLIGHT 🤡",
+            "🍝 SPAGHETTI MOVEMENT 🍝", "🛑 FLAP PRIVILEGES PAUSED 🛑", "😵 DIZZY FROM LOSING 😵", "🎪 CLOWN CAR PILOTING 🎪", "💅 AESTHETICALLY DEFEATED 💅",
+            "🧠 IQ LEFT MID-FLAP 🧠", "🚧 PIPE HAD FINAL SAY 🚧", "📦 BOXED BY THE OBSTACLE 📦", "🥀 MAIN QUEST FAILED 🥀", "🔥 EXTRA CRISPY L 🔥"
     };
     private String currentInsult = "";
 
-    public FlappyAnsh() {
+    public FlappyAnshPro() {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setFocusable(true);
         addKeyListener(this);
@@ -224,6 +272,22 @@ class FlappyAnsh extends JPanel implements Runnable, KeyListener {
         if (currentState == State.PLAYING || currentState == State.PREVIEW) {
             birdVel = jump;
             playJumpSound();
+            // Spawn fewer flap particles for performance
+            synchronized(particles) {
+                for (int i = 0; i < 2; i++) {
+                    particles.add(new Particle(
+                        150, (int)birdY + 10,
+                        (rand.nextDouble() - 0.5) * 3,
+                        rand.nextDouble() * 2 + 1,
+                        birdColor, 15, 5 + rand.nextDouble() * 3
+                    ));
+                }
+            }
+            // First flap achievement
+            if (!achievements[0]) {
+                achievements[0] = true;
+                showAchievement("FIRST FLAP");
+            }
         }
     }
 
@@ -277,6 +341,100 @@ class FlappyAnsh extends JPanel implements Runnable, KeyListener {
     private void playJumpSound() { playSound(400, 800, 100); }
     private void playScoreSound() { playSound(1200, 1200, 150); }
     private void playDeathSound() { playSound(300, 150, 500); }
+    
+    private void showAchievement(String name) {
+        lastAchievement = name;
+        achievementDisplayTimer = 180; // 3 seconds at 60fps
+        playSound(800, 1200, 200);
+    }
+    
+    private void spawnPowerUp() {
+        if (!powerUpActive && rand.nextInt(500) < 3) { // 0.6% chance per frame (less frequent)
+            powerUpActive = true;
+            powerUpType = rand.nextInt(3);
+            // Position power-up in a safe area between pipes
+            int minY = 150;
+            int maxY = GROUND_Y - 100;
+            powerUp.setBounds(WIDTH + 50, minY + rand.nextInt(maxY - minY), 30, 30);
+        }
+    }
+    
+    private void updatePowerUps() {
+        if (powerUpActive) {
+            powerUp.x -= pipeSpeed;
+            // Check collision with bird
+            if (powerUp.intersects(new Rectangle(150-16, (int)birdY-16, 32, 32))) {
+                powerUpActive = false;
+                switch (powerUpType) {
+                    case 0: // Shield
+                        hasShield = true;
+                        shieldTimer = 300;
+                        showAchievement("SHIELD ACTIVATED");
+                        break;
+                    case 1: // Double Score
+                        hasDoubleScore = true;
+                        doubleScoreTimer = 300;
+                        showAchievement("DOUBLE SCORE");
+                        break;
+                    case 2: // Slow Motion
+                        pipeSpeed = Math.max(1, pipeSpeed - 2);
+                        showAchievement("SLOW MOTION");
+                        break;
+                }
+                // Spawn collection particles (reduced for performance)
+                synchronized(particles) {
+                    for (int i = 0; i < 5; i++) {
+                        Color pColor = powerUpType == 0 ? Color.CYAN : 
+                                       powerUpType == 1 ? Color.YELLOW : Color.MAGENTA;
+                        particles.add(new Particle(
+                            powerUp.x + 15, powerUp.y + 15,
+                            (rand.nextDouble() - 0.5) * 8,
+                            (rand.nextDouble() - 0.5) * 8,
+                            pColor, 20, 8
+                        ));
+                    }
+                }
+            }
+            if (powerUp.x < -50) powerUpActive = false;
+        }
+        
+        // Update power-up timers
+        if (hasShield) {
+            shieldTimer--;
+            if (shieldTimer <= 0) hasShield = false;
+        }
+        if (hasDoubleScore) {
+            doubleScoreTimer--;
+            if (doubleScoreTimer <= 0) hasDoubleScore = false;
+        }
+    }
+    
+    private void checkAchievements() {
+        if (score >= 10 && !achievements[1]) {
+            achievements[1] = true;
+            showAchievement("SCORE 10");
+        }
+        if (score >= 50 && !achievements[2]) {
+            achievements[2] = true;
+            showAchievement("SCORE 50");
+        }
+        if (score >= 100 && !achievements[3]) {
+            achievements[3] = true;
+            showAchievement("SCORE 100");
+        }
+        if (isSecretUnlocked && !achievements[4]) {
+            achievements[4] = true;
+            showAchievement("UNLOCK SECRET");
+        }
+        if (currentWeather == Weather.STORMY && !achievements[5]) {
+            achievements[5] = true;
+            showAchievement("WEATHER MASTER");
+        }
+        if (anshCoins >= 50 && !achievements[6]) {
+            achievements[6] = true;
+            showAchievement("COIN COLLECTOR");
+        }
+    }
 
     private void update() {
         if (currentState == State.MENU && System.currentTimeMillis() - lastInputTime > 5000) {
@@ -302,14 +460,43 @@ class FlappyAnsh extends JPanel implements Runnable, KeyListener {
             birdVel += gravity;
             birdVel = Math.min(birdVel, maxFallSpeed);
             birdY += birdVel;
+            
+            // Spawn and update power-ups
+            if (currentState == State.PLAYING) {
+                spawnPowerUp();
+                updatePowerUps();
+                checkAchievements();
+            }
+            
             for (Rectangle p : pipes) {
                 p.x -= pipeSpeed;
                 if (p.intersects(new Rectangle(150-16, (int)birdY-16, 32, 32))) {
-                    if (currentState == State.PREVIEW) startPreview(); else triggerDeath();
+                    if (hasShield) {
+                        hasShield = false;
+                        shieldTimer = 0;
+                        // Shield break particles (reduced for performance)
+                        synchronized(particles) {
+                            for (int i = 0; i < 5; i++) {
+                                particles.add(new Particle(
+                                    150, (int)birdY,
+                                    (rand.nextDouble() - 0.5) * 10,
+                                    (rand.nextDouble() - 0.5) * 10,
+                                    Color.CYAN, 20, 6
+                                ));
+                            }
+                        }
+                        playSound(200, 100, 300);
+                    } else if (currentState == State.PREVIEW) {
+                        startPreview();
+                    } else {
+                        triggerDeath();
+                    }
                 }
             }
-            if (!pipes.isEmpty() && pipes.getFirst().x < -100) {
-                pipes.removeFirst(); pipes.removeFirst(); spawnPipe(); score++;
+            if (!pipes.isEmpty() && pipes.get(0).x < -100) {
+                pipes.remove(0); pipes.remove(0); spawnPipe(); 
+                int pointsGained = hasDoubleScore ? 2 : 1;
+                score += pointsGained;
                 if (score % 2 == 0) anshCoins++;
                 playScoreSound();
                 if (score > highScore) highScore = score;
@@ -319,11 +506,41 @@ class FlappyAnsh extends JPanel implements Runnable, KeyListener {
                     currentDifficulty++;
                     setDifficulty(currentDifficulty);
                 }
+                
+                // Score particles
+                synchronized(particles) {
+                    for (int i = 0; i < 3; i++) {
+                        particles.add(new Particle(
+                            WIDTH / 2, 80,
+                            (rand.nextDouble() - 0.5) * 6,
+                            (rand.nextDouble() - 0.5) * 6,
+                            Color.YELLOW, 20, 6
+                        ));
+                    }
+                }
             }
             if (birdY > GROUND_Y - 20 || birdY < 0) {
                 if (currentState == State.PREVIEW) startPreview(); else triggerDeath();
             }
         }
+        
+        // Update particles
+        try {
+            ArrayList<Particle> toRemove = new ArrayList<>();
+            for (Particle p : particles) {
+                if (p != null) {
+                    p.update();
+                    if (p.life <= 0) toRemove.add(p);
+                }
+            }
+            particles.removeAll(toRemove);
+        } catch (Exception e) {
+            // Skip particle update if error occurs
+        }
+        
+        // Update achievement display timer
+        if (achievementDisplayTimer > 0) achievementDisplayTimer--;
+        
         if (shakeTicks > 0) shakeTicks--;
         if (flashTicks > 0) flashTicks--;
     }
@@ -341,7 +558,13 @@ class FlappyAnsh extends JPanel implements Runnable, KeyListener {
         currentState = State.GAMEOVER;
         shakeTicks = 15;
         flashTicks = 5;
-        currentInsult = tuneEmojiForPlatform(INSULTS[rand.nextInt(INSULTS.length)]);
+        // Mix of generic and OS-specific insults
+        String[] osInsults = getOSInsults();
+        if (rand.nextBoolean()) {
+            currentInsult = osInsults[rand.nextInt(osInsults.length)];
+        } else {
+            currentInsult = tuneEmojiForPlatform(INSULTS[rand.nextInt(INSULTS.length)]);
+        }
         playDeathSound();
     }
 
@@ -411,20 +634,100 @@ class FlappyAnsh extends JPanel implements Runnable, KeyListener {
             if (currentWeather == Weather.RAINY || currentWeather == Weather.STORMY) {
                 drawRain(g2);
             }
+            
+            // Draw power-ups
+            if (powerUpActive) {
+                Color pColor = powerUpType == 0 ? Color.CYAN : 
+                               powerUpType == 1 ? Color.YELLOW : Color.MAGENTA;
+                g2.setColor(pColor);
+                g2.fillOval(powerUp.x, powerUp.y, powerUp.width, powerUp.height);
+                g2.setColor(Color.WHITE);
+                g2.drawOval(powerUp.x, powerUp.y, powerUp.width, powerUp.height);
+                // Power-up icon
+                g2.setColor(Color.BLACK);
+                String icon = powerUpType == 0 ? "🛡️" : 
+                              powerUpType == 1 ? "2x" : "⏱️";
+                g2.setFont(new Font("Arial", Font.BOLD, 16));
+                g2.drawString(icon, powerUp.x + 8, powerUp.y + 20);
+            }
+            
+            // Draw shield effect
+            if (hasShield) {
+                g2.setColor(new Color(0, 255, 255, 100));
+                g2.fillOval(150 - 25, (int)birdY - 25, 50, 50);
+                g2.setColor(new Color(0, 255, 255, 200));
+                g2.drawOval(150 - 25, (int)birdY - 25, 50, 50);
+            }
+            
+            // Draw double score indicator
+            if (hasDoubleScore) {
+                g2.setColor(new Color(255, 255, 0, 180));
+                g2.setFont(new Font("Impact", Font.ITALIC, 18));
+                g2.drawString("2X SCORE", 20, 65);
+            }
         }
+        
+        // Draw particles
+        try {
+            for (Particle p : particles) {
+                if (p != null) p.draw(g2);
+            }
+        } catch (Exception e) {
+            // Skip particle drawing if error occurs
+        }
+        
+        // Draw achievement notification
+        if (achievementDisplayTimer > 0) {
+            g2.setColor(new Color(0, 0, 0, 200));
+            g2.fillRect(50, HEIGHT - 80, WIDTH - 100, 50);
+            g2.setColor(new Color(255, 215, 0));
+            g2.drawRect(50, HEIGHT - 80, WIDTH - 100, 50);
+            g2.setColor(Color.WHITE);
+            g2.setFont(new Font("Arial", Font.BOLD, 20));
+            g2.drawString("🏆 ACHIEVEMENT UNLOCKED! " + getOSEmoji(), 70, HEIGHT - 55);
+            g2.setColor(new Color(255, 255, 100));
+            g2.drawString(lastAchievement, 70, HEIGHT - 35);
+        }
+        
         if (flashTicks > 0) { g2.setColor(new Color(255, 255, 255, 180)); g2.fillRect(0, 0, WIDTH, HEIGHT); }
         if (currentState == State.GAMEOVER) drawGameOver(g2);
     }
 
     private void drawMenu(Graphics2D g) {
-        drawPoppingText(g, "FLAPPY BIRD", new Font("Impact", Font.PLAIN, 58), Color.WHITE, 95, 0);
-        drawPoppingText(g, "ANSH EDITION", new Font("Impact", Font.PLAIN, 42), Color.YELLOW, 145, 80);
-        drawPoppingText(g, "[ 1 ] START GAME", new Font("Arial", Font.BOLD, 22), Color.BLACK, 220, 120);
-        drawPoppingText(g, "[ 2 ] CREDITS", new Font("Arial", Font.BOLD, 22), Color.BLACK, 260, 200);
-        drawPoppingText(g, "[ 3 ] EXIT", new Font("Arial", Font.BOLD, 22), Color.BLACK, 300, 280);
+        // Animated background gradient
+        long time = System.currentTimeMillis();
+        float hue = (time % 10000) / 10000.0f;
+        Color gradientColor = Color.getHSBColor(hue, 0.3f, 0.9f);
+        g.setColor(new Color(gradientColor.getRed(), gradientColor.getGreen(), gradientColor.getBlue(), 50));
+        g.fillRect(0, 0, WIDTH, HEIGHT);
+        
+        String osEmoji = getOSEmoji();
+        drawPoppingText(g, "FLAPPY BIRD " + osEmoji, new Font("Impact", Font.PLAIN, 58), Color.WHITE, 95, 0);
+        drawPoppingText(g, "ANSH EDITION", new Font("Impact", Font.PLAIN, 42), new Color(255, 215, 0), 145, 80);
+        
+        // Enhanced menu buttons with glow effect
+        String[] menuItems = {"[ 1 ] START GAME", "[ 2 ] CREDITS", "[ 3 ] EXIT"};
+        int[] menuY = {220, 260, 300};
+        Color[] menuColors = {new Color(0, 200, 100), new Color(100, 150, 255), new Color(255, 100, 100)};
+        
+        for (int i = 0; i < 3; i++) {
+            // Glow effect
+            g.setColor(new Color(menuColors[i].getRed(), menuColors[i].getGreen(), menuColors[i].getBlue(), 100));
+            g.fillRoundRect(130, menuY[i] - 25, 340, 40, 20, 20);
+            drawPoppingText(g, menuItems[i], new Font("Arial", Font.BOLD, 22), menuColors[i], menuY[i], i * 100);
+        }
+        
         drawPoppingText(g, "HIGH SCORE: " + highScore, new Font("Arial", Font.BOLD, 22), Color.WHITE, 380, 360);
-        drawPoppingText(g, "ANSHCOINS: " + anshCoins, new Font("Arial", Font.BOLD, 22), Color.WHITE, 420, 440);
+        drawPoppingText(g, "ANSHCOINS: " + anshCoins, new Font("Arial", Font.BOLD, 22), new Color(255, 215, 0), 420, 440);
         drawPoppingText(g, "SECRET: TAP 6 TIMES OR PRESS [ 6 ]", new Font("Arial", Font.BOLD, 18), Color.RED, 465, 520);
+        
+        // Animated particles in menu
+        if (time % 10 < 5) {
+            g.setColor(new Color(255, 255, 255, 150));
+            g.fillOval(100 + (int)(Math.sin(time / 500.0) * 50), 200 + (int)(Math.cos(time / 500.0) * 30), 8, 8);
+            g.fillOval(500 - (int)(Math.sin(time / 500.0) * 50), 250 + (int)(Math.cos(time / 500.0) * 30), 8, 8);
+        }
+        
         drawPlatformLine(g);
     }
 
@@ -464,14 +767,14 @@ class FlappyAnsh extends JPanel implements Runnable, KeyListener {
     }
 
     private void drawBird(Graphics2D g, int x, int y, Color body, double vel) {
-        Graphics2D bG = (Graphics2D) g.create(); bG.translate(x, y); bG.rotate(Math.clamp(vel * 0.05, -0.4, 0.4));
+        Graphics2D bG = (Graphics2D) g.create(); bG.translate(x, y); bG.rotate(Math.max(-0.4, Math.min(0.4, vel * 0.05)));
         bG.setColor(body); bG.fillOval(-16, -13, 32, 26); bG.setColor(Color.WHITE); bG.fillOval(7, -7, 7, 7);
         bG.setColor(Color.BLACK); bG.fillOval(10, -5, 3, 3); bG.setColor(Color.ORANGE); bG.fillPolygon(new int[]{15, 25, 15}, new int[]{-3, 0, 3}, 3); bG.dispose();
     }
 
     private void drawGameOver(Graphics2D g) {
         g.setColor(new Color(0, 0, 0, 200)); g.fillRect(0, 0, WIDTH, HEIGHT);
-        g.setColor(Color.RED); g.setFont(new Font("Impact", Font.PLAIN, 50)); g.drawString("YOU GOT COOKED", 155, 160);
+        g.setColor(Color.RED); g.setFont(new Font("Impact", Font.PLAIN, 50)); g.drawString("YOU GOT COOKED " + getOSEmoji(), 155, 160);
         drawGameOverInsult(g);
         g.setFont(new Font("Impact", Font.PLAIN, 28));
         g.setColor(Color.YELLOW); g.drawString("SCORE: " + score, 255, 300); g.setFont(new Font("Arial", Font.BOLD, 16)); g.drawString("ENTER / TAP FOR MENU", 215, 380);
@@ -480,9 +783,49 @@ class FlappyAnsh extends JPanel implements Runnable, KeyListener {
     private String tuneEmojiForPlatform(String text) {
         return text;
     }
+    
+    private String getOSEmoji() {
+        return switch (platform) {
+            case WINDOWS -> "🪟";
+            case MAC -> "🍎";
+            case LINUX -> "🐧";
+            case CHROMEOS -> "🌐";
+            case OTHER -> "🎮";
+        };
+    }
+    
+    private String[] getOSInsults() {
+        return switch (platform) {
+            case WINDOWS -> new String[]{
+                "💀 BLUE SCREEN OF DEATH 💀", "🪟 WINDOWS UPDATE FAILED 🪟", 
+                "🐛 DLL ERROR DETECTED 🐛", "🔄 RESTART REQUIRED BRO 🔄",
+                "📉 PERFORMANCE TANKED 📉"
+            };
+            case MAC -> new String[]{
+                "💀 SPINNING WHEEL OF DEATH 💀", "🍎 APPLE CARE NEEDED 🍎",
+                "💸 OVERPRICED FAILURE 💸", "🔋 BATTERY DIED 🔋",
+                "📱 ICLOUD SYNC FAILED 📱"
+            };
+            case LINUX -> new String[]{
+                "💀 KERNEL PANIC 💀", "🐧 PENGUIN FROZE 🐧",
+                "📦 DEPENDENCY HELL 📦", "⌨️ TERMINAL ERROR ⌨️",
+                "🔧 COMPILER FAILED 🔧"
+            };
+            case CHROMEOS -> new String[]{
+                "💀 CHROME TAB CRASH 💀", "🌐 ANDROID APP FAILED 🌐",
+                "📱 PLAY STORE ERROR 📱", "🔋 BATTERY OPTIMIZED 🔋",
+                "📶 WIFI DISCONNECTED 📶"
+            };
+            case OTHER -> new String[]{
+                "💀 MYSTERIOUS CRASH 💀", "🎮 CONTROLLER DISCONNECTED 🎮",
+                "📱 UNKNOWN ERROR 📱", "🔧 SYSTEM FAILURE 🔧",
+                "⚠️ GENERIC ERROR ⚠️"
+            };
+        };
+    }
 
     private void drawPlatformLine(Graphics2D g) {
-        String text = "OS: " + platform.label;
+        String text = "OS: " + platform.label + " " + getOSEmoji();
         Font font = new Font("Arial", Font.BOLD, 15);
         FontMetrics metrics = g.getFontMetrics(font);
         int iconSize = 27;
@@ -635,9 +978,15 @@ class FlappyAnsh extends JPanel implements Runnable, KeyListener {
     }
 
     private void drawCredits(Graphics2D g) {
-        g.setColor(Color.BLACK); g.setFont(new Font("Impact", Font.PLAIN, 50)); g.drawString("THE GOATS", 200, 120);
-        g.setFont(new Font("Arial", Font.BOLD, 22)); g.drawString("ANSH - OWNER", 190, 185); g.drawString("CHATGPT - IDEA", 190, 220); g.drawString("GEMINI - CO-DEV", 190, 255); g.drawString("GITHUB COPILOT - AI ASSISTANT", 190, 290); g.drawString("CODEX - AI ASSISTANT", 190, 325);
-        g.setColor(Color.RED); g.drawString("ESC / TAP FOR MENU", 205, 385);
+        g.setColor(Color.BLACK); g.setFont(new Font("Impact", Font.PLAIN, 50)); g.drawString("THE GOATS", 200, 100);
+        g.setFont(new Font("Arial", Font.BOLD, 20)); g.drawString("ANSH - OWNER", 190, 155); 
+        g.drawString("CHATGPT - IDEA", 190, 185); 
+        g.drawString("GEMINI - CO-DEV", 190, 215); 
+        g.drawString("GITHUB COPILOT - AI ASSISTANT", 190, 245); 
+        g.drawString("CODEX - AI ASSISTANT", 190, 275);
+        g.setColor(new Color(255, 100, 100)); g.drawString("Cascade - REVAMP MASTER", 190, 305);
+        g.setColor(new Color(100, 255, 100)); g.drawString("shozanthebozan - LEGEND", 190, 335);
+        g.setColor(Color.RED); g.setFont(new Font("Arial", Font.BOLD, 18)); g.drawString("ESC / TAP FOR MENU", 205, 385);
     }
 
     private Color getWeatherSkyColor() {
@@ -711,17 +1060,56 @@ class FlappyAnsh extends JPanel implements Runnable, KeyListener {
         weatherTransition = 0;
         if (autoMode) currentDifficulty = 3;
         pipes.clear();
+        particles.clear();
+        hasShield = false;
+        hasDoubleScore = false;
+        shieldTimer = 0;
+        doubleScoreTimer = 0;
+        powerUpActive = false;
         spawnPipe();
         currentState = State.PLAYING;
     }
-    private void runAI() { if (!pipes.isEmpty() && birdY > pipes.getFirst().height + ((double) pipeGap / 2) + 5) birdVel = jump; }
+    private void runAI() {
+        if (pipes.isEmpty()) {
+            if (birdY > 250) birdVel = jump;
+            return;
+        }
+        
+        // Find the next pipe gap
+        Rectangle nextPipe = null;
+        for (int i = 0; i < pipes.size(); i += 2) {
+            if (pipes.get(i).x > 100) {
+                nextPipe = pipes.get(i);
+                break;
+            }
+        }
+        
+        if (nextPipe == null) {
+            // No upcoming pipe, maintain middle height
+            if (birdY > 250) birdVel = jump;
+            return;
+        }
+        
+        // Calculate target position (center of the gap)
+        double gapCenter = nextPipe.height + (pipeGap / 2.0);
+        double targetY = gapCenter - 20; // Aim slightly above center
+        
+        // Smarter AI: flap if below target and falling
+        if (birdY > targetY && birdVel > 0) {
+            birdVel = jump;
+        }
+        // Also flap if too close to ground
+        if (birdY > 350) {
+            birdVel = jump;
+        }
+    }
     private void spawnPipe() {
         int minPipeHeight = 45;
         int randomRange = GROUND_Y - pipeGap - (minPipeHeight * 2);
         int h = minPipeHeight + rand.nextInt(Math.max(1, randomRange + 1));
         pipes.add(new Rectangle(WIDTH, 0, 70, h)); pipes.add(new Rectangle(WIDTH, h + pipeGap, 70, GROUND_Y - h - pipeGap)); }
     private void setDifficulty(int l) {
-        currentDifficulty = Math.clamp(l, 1, 5);
+        currentDifficulty = Math.max(1, Math.min(5, l));
         gravity = difficultyGravity[currentDifficulty];
         jump = difficultyJump[currentDifficulty];
         maxFallSpeed = difficultyFallSpeed[currentDifficulty];
@@ -738,9 +1126,9 @@ class FlappyAnsh extends JPanel implements Runnable, KeyListener {
         }
     }
     public void run() {
-        while (true) { update(); repaint(); try { Thread.sleep(10); } catch (InterruptedException ignored) {} } }
+        while (true) { update(); repaint(); try { Thread.sleep(16); } catch (InterruptedException ignored) {} } }
     public static void main(String[] args) {
-        JFrame f = new JFrame("Flappy Bird: Ansh Edition"); FlappyAnsh game = new FlappyAnsh(); f.add(game); f.pack(); f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); f.setLocationRelativeTo(null); f.setResizable(true); f.setMinimumSize(new Dimension(400, 350)); f.setExtendedState(JFrame.MAXIMIZED_BOTH); f.setVisible(true);
+        JFrame f = new JFrame("Flappy Bird: Ansh Edition"); FlappyAnshPro game = new FlappyAnshPro(); f.add(game); f.pack(); f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); f.setLocationRelativeTo(null); f.setResizable(true); f.setMinimumSize(new Dimension(400, 350)); f.setExtendedState(JFrame.MAXIMIZED_BOTH); f.setVisible(true);
         game.requestFocus(); new Thread(game).start();
     }
     @Override public void keyTyped(KeyEvent e) {} @Override public void keyReleased(KeyEvent e) {}
