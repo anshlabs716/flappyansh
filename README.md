@@ -1,61 +1,316 @@
-# 🐦 Flappy Ansh now with chrome os mac windows and linux support. (Contact me if there is an issue) 
+# 🐦 Flappy Ansh
 
-Welcome to **Flappy Ansh**! A Java-based game with custom difficulty levels, secret skins, and atmospheric weather effects.
+<div align="center">
 
-**If you are trying to run the .exe file and windows smartscreen blocks it just press more options and press run anyway, that pops up because our .exe isn't signed.**
+### 🎮 A Java-Based Flappy Bird Clone
+
+**Custom difficulty • Secret skins • Power-ups • Particle effects • Weather effects • Windows • Linux • macOS • ChromeOS**
+
+[![Java](https://img.shields.io/badge/Java-21%2B-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.java.com/)
+[![Maven](https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)](https://maven.apache.org/)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20ChromeOS-lightgrey?style=for-the-badge)](https://github.com/anshlabs716/flappyansh)
+
+</div>
 
 ---
 
-## 🛠️ Prerequisites
+## 🐦 About
 
-**You need JDK 21+ to play from the raw .java file, and JRE 21+ to play the .exe file.**
+**Flappy Ansh** is a Java-based Flappy Bird-inspired game with custom difficulty levels, secret skins, power-ups, particle effects, and atmospheric weather effects.
 
-Before running the .java file, make sure you have the Java Development Kit (JDK) installed. You can check your version by running this in your terminal:
-```bash
+The project includes both a Java source version and a Windows `.exe`.
+
+The Java version is designed for:
+
+- 🪟 Windows
+- 🍎 macOS
+- 🐧 Linux
+- 💻 ChromeOS
+
+---
+
+## ✨ Features
+
+- 🐦 Flappy Bird-style gameplay
+- 🎚️ Custom difficulty levels
+- 🎨 Secret skins
+- ⚡ Power-up mechanics
+- ✨ Particle effects
+- 🌦️ Atmospheric weather effects
+- 🖥️ Windows executable
+- ☕ Java source version
+- 🧩 Maven support
+- 🌍 Cross-platform Java support
+
+---
+
+## 🖥️ Platform Support
+
+| Platform | Support |
+|---|---|
+| 🪟 Windows | ✅ Supported |
+| 🍎 macOS | ✅ Java version |
+| 🐧 Linux | ✅ Java version |
+| 💻 ChromeOS | ✅ Java version |
+
+> ⚠️ Compatibility may vary depending on the operating system, Java installation, and system configuration.
+
+---
+
+## ☕ Requirements
+
+### Java Source
+
+The raw Java source requires:
+
+- **JDK 21+**
+
+Check your Java version:
+
+~~~~bash
 java -version
+~~~~
 
-## 🛠️ Prerequisites
+### Windows `.exe`
 
-Before running the game, you need to install **Java (JDK 21+)** and **Maven**. Follow the commands for your Operating System below:
+The Windows executable requires:
+
+- **JRE 21+**
+
+### Maven
+
+Maven is required when building and running the project through the Maven workflow.
+
+Check Maven:
+
+~~~~bash
+mvn -version
+~~~~
+
+---
+
+## 📦 Installation
 
 ### 🪟 Windows
-1. **Install Java & Maven** (Using Winget in PowerShell):
-   ```powershell
-   winget install Eclipse.Temurin.21.JDK
-   winget install Apache.Maven
 
-MACOS
-/bin/bash -c "$(curl -fsSL [https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh](https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh))"
+Install Java and Maven using Winget in PowerShell:
+
+~~~~powershell
+winget install Eclipse.Temurin.21.JDK
+winget install Apache.Maven
+~~~~
+
+### 🍎 macOS
+
+Using Homebrew:
+
+~~~~bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 brew install openjdk@21
 brew install maven
+~~~~
 
+### 🐧 Debian-Based Linux
 
-DEBIAN BASED DISTROS EG, UBUNTU,MINT AND KALI.
+For Ubuntu, Linux Mint, Kali, and other Debian-based distributions:
+
+~~~~bash
 sudo apt update
 sudo apt install openjdk-21-jdk maven -y
+~~~~
 
+Verify the installation:
+
+~~~~bash
 java -version
 mvn -version
+~~~~
 
-HOW TO RUN
-# 1. Clone the repository (or just download the .java file)
-git clone [https://github.com/YOUR_GITHUB_USERNAME/flappy-ansh.git](https://github.com/YOUR_GITHUB_USERNAME/flappy-ansh.git)
+---
 
-# 2. Go into the project folder
-cd flappy-ansh
+## 🚀 Run From Source
 
-# 3. Build and run the game using Maven
+Clone the repository:
+
+~~~~bash
+git clone https://github.com/anshlabs716/flappyansh.git
+cd flappyansh
+~~~~
+
+Build and run with Maven:
+
+~~~~bash
 mvn clean compile exec:java
+~~~~
 
-HOW THE FILE LAYOUT SHOULD BE
-flappy-ansh/
-├── .gitignore          # Keeps the repo clean
-├── pom.xml             # Maven configuration file
-├── README.md           # This file!
-└── src/
-    └── main/
-        └── java/
-            └── Main.java   # Your game's main entry point
+---
 
-OR U CAN DOWNLOAD A JAVA IDE EG VS CODE, INTELLIJ IDEA AND COPY PASTE THE CODE AND ENJOY.
+## 🪟 Windows Executable
+
+The repository includes:
+
+~~~~text
+FlappyAnsh.exe
+~~~~
+
+Launch the executable on Windows to play without manually compiling the Java source.
+
+### ⚠️ Windows SmartScreen
+
+Because the executable is not digitally signed, Windows SmartScreen may display a warning.
+
+If Windows blocks the executable:
+
+1. Select **More info**
+2. Select **Run anyway**
+
+---
+
+## 🧑‍💻 IDE Support
+
+You can also open the Java project using:
+
+- VS Code
+- IntelliJ IDEA
+- Eclipse
+- Another Java-compatible IDE
+
+Install **JDK 21+**, open the project, and run the game's main Java class.
+
+---
+
+## ⚡ Flappy Ansh Pro
+
+The repository also contains an enhanced **Flappy Ansh Pro** implementation.
+
+It includes additional improvements such as:
+
+- ⚡ Power-up mechanics
+- ✨ Improved particle effects
+- 🎚️ Adjusted difficulty
+- 🎨 Additional visual effects
+- 🧩 Additional game classes
+- 🌦️ Atmospheric effects
+
+---
+
+## 📁 Project Structure
+
+~~~~text
+flappyansh/
+├── .gitignore
+├── FlappyAnsh.exe
+├── FlappyAnsh.java
+├── Flappy-Anshpro/
+└── README.md
+~~~~
+
+The `Flappy-Anshpro` directory contains additional classes and files used to enhance the game.
+
+---
+
+## 🛠️ Troubleshooting
+
+### `java` is not found
+
+Make sure **JDK 21+** is installed and available in your system `PATH`.
+
+~~~~bash
+java -version
+~~~~
+
+### `mvn` is not found
+
+Install Maven and verify:
+
+~~~~bash
+mvn -version
+~~~~
+
+### The `.exe` is blocked by Windows
+
+Windows SmartScreen may warn about the unsigned executable.
+
+Use:
+
+**More info → Run anyway**
+
+### The game does not start
+
+Check:
+
+- Java version
+- Maven installation
+- Operating system
+- Project files
+- Terminal output
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] More secret skins
+- [ ] More power-ups
+- [ ] More weather effects
+- [ ] More difficulty modes
+- [ ] Improved menus
+- [ ] More visual effects
+- [ ] Better cross-platform testing
+- [ ] Improved build system
+- [ ] More game modes
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome!
+
+1. Fork the repository
+2. Create a branch
+3. Make your changes
+4. Test the game
+5. Commit your changes
+6. Push your branch
+7. Open a Pull Request
+
+Bug reports, feature ideas, gameplay improvements, and code contributions are welcome.
+
+---
+
+## 🐛 Bug Reports
+
+When reporting a bug, include:
+
+- Operating system
+- Java version
+- Maven version
+- Game version
+- What happened
+- Any error messages
+
+---
+
+## 👨‍💻 Contributors
+
+**AnshLabs716 — Ansh Bhatia**
+
+**shozanthebozan**
+
+---
+
+## 📜 License
+
+See the repository for the current licensing information.
+
+---
+
+<div align="center">
+
+### 🐦 Flappy Ansh
+
+**Fly. Dodge. Survive.**
+
+**Java • Maven • Windows • Linux • macOS • ChromeOS**
+
+</div>
 
