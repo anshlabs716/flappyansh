@@ -14,8 +14,6 @@
 
 
 
-<img width="1360" height="719" alt="Screenshot_20260819_182803" src="https://github.com/user-attachments/assets/3316f691-249e-4861-a2c8-0b24b842561d" />
-
 </div>
 
 ---
