@@ -1,5 +1,7 @@
 
 <img width="1360" height="719" alt="Screenshot_20260819_182803" src="https://github.com/user-attachments/assets/44c04f8d-ab27-4fd6-bbc2-3920a24bdb63" />
+
+
 # 🐦 Flappy Ansh
 
 <div align="center">
