@@ -11,7 +11,6 @@
 **Custom difficulty • Secret skins • Power-ups • Particle effects • Weather effects • Windows • Linux • macOS • ChromeOS**
 
 [![Java](https://img.shields.io/badge/Java-21%2B-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.java.com/)
-[![Maven](https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)](https://maven.apache.org/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20ChromeOS-lightgrey?style=for-the-badge)](https://github.com/anshlabs716/flappyansh)
 
 
