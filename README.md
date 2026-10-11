@@ -28,7 +28,6 @@
 - [☕ Requirements](#-requirements)
 - [Java Source](#java-source)
 - [Windows `.exe`](#windows-exe)
-- [Maven](#maven)
 - [📦 Installation](#-installation)
 - [🪟 Windows](#-windows)
 - [🍎 macOS](#-macos)
@@ -41,7 +40,6 @@
 - [📁 Project Structure](#-project-structure)
 - [🛠️ Troubleshooting](#-troubleshooting)
 - [`java` is not found](#java-is-not-found)
-- [`mvn` is not found](#mvn-is-not-found)
 - [The `.exe` is blocked by Windows](#the-exe-is-blocked-by-windows)
 - [The game does not start](#the-game-does-not-start)
 - [🗺️ Roadmap](#-roadmap)
@@ -75,7 +73,6 @@ The Java version is designed for:
 - 🌦️ Atmospheric weather effects
 - 🖥️ Windows executable
 - ☕ Java source version
-- 🧩 Maven support
 - 🌍 Cross-platform Java support
 
 ---
@@ -113,27 +110,16 @@ The Windows executable requires:
 
 - **JRE 21+**
 
-### Maven
-
-Maven is required when building and running the project through the Maven workflow.
-
-Check Maven:
-
-~~~~bash
-mvn -version
-~~~~
-
 ---
 
 ## 📦 Installation
 
 ### 🪟 Windows
 
-Install Java and Maven using Winget in PowerShell:
+Install Java using Winget in PowerShell:
 
 ~~~~powershell
 winget install Eclipse.Temurin.21.JDK
-winget install Apache.Maven
 ~~~~
 
 ### 🍎 macOS
@@ -143,7 +129,6 @@ Using Homebrew:
 ~~~~bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 brew install openjdk@21
-brew install maven
 ~~~~
 
 ### 🐧 Debian-Based Linux
@@ -152,14 +137,13 @@ For Ubuntu, Linux Mint, Kali, and other Debian-based distributions:
 
 ~~~~bash
 sudo apt update
-sudo apt install openjdk-21-jdk maven -y
+sudo apt install openjdk-21-jdk -y
 ~~~~
 
 Verify the installation:
 
 ~~~~bash
 java -version
-mvn -version
 ~~~~
 
 ---
@@ -173,10 +157,16 @@ git clone https://github.com/anshlabs716/flappyansh.git
 cd flappyansh
 ~~~~
 
-Build and run with Maven:
+Compile the Java source:
 
 ~~~~bash
-mvn clean compile exec:java
+javac FlappyAnshPro.java
+~~~~
+
+Run the game:
+
+~~~~bash
+java FlappyAnshPro
 ~~~~
 
 ---
@@ -236,7 +226,7 @@ It includes additional improvements such as:
 flappyansh/
 ├── .gitignore
 ├── FlappyAnsh.exe
-├── FlappyAnsh.java
+├── FlappyAnshPro.java
 ├── Flappy-Anshpro/
 └── README.md
 ~~~~
@@ -255,14 +245,6 @@ Make sure **JDK 21+** is installed and available in your system `PATH`.
 java -version
 ~~~~
 
-### `mvn` is not found
-
-Install Maven and verify:
-
-~~~~bash
-mvn -version
-~~~~
-
 ### The `.exe` is blocked by Windows
 
 Windows SmartScreen may warn about the unsigned executable.
@@ -276,7 +258,6 @@ Use:
 Check:
 
 - Java version
-- Maven installation
 - Operating system
 - Project files
 - Terminal output
@@ -319,7 +300,6 @@ When reporting a bug, include:
 
 - Operating system
 - Java version
-- Maven version
 - Game version
 - What happened
 - Any error messages
@@ -346,7 +326,6 @@ See the repository for the current licensing information.
 
 **Fly. Dodge. Survive.**
 
-**Java • Maven • Windows • Linux • macOS • ChromeOS**
+**Java • Windows • Linux • macOS • ChromeOS**
 
 </div>
-
