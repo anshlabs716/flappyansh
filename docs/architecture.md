@@ -2,8 +2,6 @@
 
 High-level structure of Flappy Ansh.
 
-# Architecture
-
 This page describes the high-level structure of Flappy Ansh. It is a starting
 point and is updated as the implementation evolves.
 
@@ -13,7 +11,7 @@ Flappy Ansh
 
 ## Main components
 
-- `**Java SE (Swing/AWT)**`
+- **Java SE (Swing/AWT)**
 
 ## Data flow
 

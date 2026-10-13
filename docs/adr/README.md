@@ -2,8 +2,6 @@
 
 Architecture decision records for Flappy Ansh.
 
-# Architecture Decision Records
-
 This directory records significant architecture decisions for Flappy Ansh.
 
 ## What is an ADR?

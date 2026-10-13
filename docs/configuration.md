@@ -2,8 +2,6 @@
 
 How to configure Flappy Ansh.
 
-# Configuration
-
 Reference for configuring Flappy Ansh.
 
 ## Where configuration lives
