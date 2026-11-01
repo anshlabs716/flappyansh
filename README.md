@@ -220,7 +220,47 @@ It includes additional improvements such as:
 
 ---
 
-## 📁 Project Structure
+## 📁 Project Files
+
+```text
+flappyansh/
+├── .editorconfig
+├── .gitattributes
+├── .github/
+├── .gitignore
+├── .markdownlint-cli2.jsonc
+├── CHANGELOG.md
+├── CITATION.cff
+├── CODE_OF_CONDUCT.md
+├── COMPATIBILITY.md
+├── CONTRIBUTING.md
+├── docs/
+├── Flappy-Anshpro/
+│   ├── Flappy-Anshpro.iml
+│   ├── out/
+│   │   ├── production/
+│   ├── src/
+│   │   ├── FlappyAnshPro.class
+│   │   ├── FlappyAnshPro$1.class
+│   │   ├── FlappyAnshPro$2.class
+│   │   ├── FlappyAnshPro$BirdAbility.class
+│   │   ├── FlappyAnshPro$GameMode.class
+│   │   ├── FlappyAnshPro$Particle.class
+│   │   ├── FlappyAnshPro$Platform.class
+│   │   ├── FlappyAnshPro$State.class
+│   │   ├── FlappyAnshPro$Weather.class
+│   │   ├── Main.java
+│   │   ├── Particle.class
+│   │   ├── PowerUp.class
+├── FlappyAnsh.exe
+├── FlappyAnshPro.java
+├── LICENSE
+├── README.md
+├── SECURITY.md
+├── SUPPORT.md
+├── THIRD_PARTY_NOTICES.md
+```
+
 
 ~~~~text
 flappyansh/
