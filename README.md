@@ -303,6 +303,23 @@ flappyansh/
 ├── .editorconfig
 ├── .gitattributes
 ├── .github/
+│   ├── CODEOWNERS
+│   ├── CONTRIBUTING.md
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.yml
+│   │   ├── config.yml
+│   │   ├── feature_request.yml
+│   │   └── question.yml
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   ├── release.yml
+│   └── workflows/
+│       ├── ci.yml
+│       ├── gradle.yml
+│       ├── java-ci.yml
+│       ├── links.yml
+│       ├── markdown-lint.yml
+│       ├── release.yml
+│       └── security.yml
 ├── .gitignore
 ├── .markdownlint-cli2.jsonc
 ├── CHANGELOG.md
@@ -310,11 +327,28 @@ flappyansh/
 ├── CODE_OF_CONDUCT.md
 ├── COMPATIBILITY.md
 ├── CONTRIBUTING.md
+├── docs/
+│   ├── adr/
+│   │   └── README.md
+│   ├── architecture.md
+│   ├── building.md
+│   ├── configuration.md
+│   ├── controls.md
+│   ├── development.md
+│   ├── faq.md
+│   ├── gameplay.md
+│   ├── index.md
+│   ├── releasing.md
+│   ├── running.md
+│   ├── testing.md
+│   ├── third-party-dependencies.md
+│   └── troubleshooting.md
 ├── Flappy-Anshpro/
 │   ├── Flappy-Anshpro.iml
 │   ├── out/
 │   │   └── production/
 │   └── src/
+│       ├── FlappyAnshPro.class
 │       ├── FlappyAnshPro$1.class
 │       ├── FlappyAnshPro$2.class
 │       ├── FlappyAnshPro$BirdAbility.class
@@ -323,7 +357,6 @@ flappyansh/
 │       ├── FlappyAnshPro$Platform.class
 │       ├── FlappyAnshPro$State.class
 │       ├── FlappyAnshPro$Weather.class
-│       ├── FlappyAnshPro.class
 │       ├── Main.java
 │       ├── Particle.class
 │       └── PowerUp.class
@@ -333,8 +366,7 @@ flappyansh/
 ├── README.md
 ├── SECURITY.md
 ├── SUPPORT.md
-├── THIRD_PARTY_NOTICES.md
-└── docs/
+└── THIRD_PARTY_NOTICES.md
 ```
 
 ---
